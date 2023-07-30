@@ -2,10 +2,14 @@ package main
 
 import (
 	"bootcamp-api-hmsi/connectDB"
-	"bootcamp-api-hmsi/query"
+	"bootcamp-api-hmsi/modules/customers/customerHandler"
+	"bootcamp-api-hmsi/modules/customers/customerRepository"
+	"bootcamp-api-hmsi/modules/customers/customerUsecase"
+
 	"fmt"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
 	"github.com/rs/zerolog/log"
@@ -43,52 +47,62 @@ func main() {
 	}
 	fmt.Println("Successfully connected!")
 
-	// DB struct initialize
-	DB := query.DB{Conn: db}
+	// // DB struct initialize
+	// DB := query.DB{Conn: db}
 
-	// Create customer
-	err = DB.Create(&query.Customers{
-		Name:  "Sintia",
-		Phone: "0822736133",
-		Email: "sintia@mail.com",
-		Age:   21,
-	})
-	fmt.Println("err", err)
-	if err != nil {
-		log.Error().Msg(err.Error())
-		os.Exit(1)
-	}
-	fmt.Println("Insert Data Berhasil")
+	// // Create customer
+	// err = DB.Create(&query.Customers{
+	// 	Name:  "Sintia",
+	// 	Phone: "0822736133",
+	// 	Email: "sintia@mail.com",
+	// 	Age:   21,
+	// })
+	// fmt.Println("err", err)
+	// if err != nil {
+	// 	log.Error().Msg(err.Error())
+	// 	os.Exit(1)
+	// }
+	// fmt.Println("Insert Data Berhasil")
 
-	// Read customer
-	result, err := DB.Read()
-	if err != nil {
-		log.Error().Msg(err.Error())
-		os.Exit(1)
-	}
-	fmt.Println(result)
+	// // Read customer
+	// result, err := DB.Read()
+	// if err != nil {
+	// 	log.Error().Msg(err.Error())
+	// 	os.Exit(1)
+	// }
+	// fmt.Println(result)
 
-	// Update customer
-	err = DB.Update(&query.Customers{
-		Id:    2,
-		Name:  "Sintia Dayu Kartika",
-		Phone: "012345564",
-		Email: "sintia@example.com",
-		Age:   21,
-	})
-	if err != nil {
-		log.Error().Msg(err.Error())
-		os.Exit(1)
-	}
-	fmt.Println("Update Berhasil")
+	// // Update customer
+	// err = DB.Update(&query.Customers{
+	// 	Id:    2,
+	// 	Name:  "Sintia Dayu Kartika",
+	// 	Phone: "012345564",
+	// 	Email: "sintia@example.com",
+	// 	Age:   21,
+	// })
+	// if err != nil {
+	// 	log.Error().Msg(err.Error())
+	// 	os.Exit(1)
+	// }
+	// fmt.Println("Update Berhasil")
 
-	// Delete customer
-	err = DB.Delete(3)
-	if err != nil {
-		log.Error().Msg(err.Error())
-		os.Exit(1)
-	}
-	fmt.Println("Delete Berhasil")
+	// // Delete customer
+	// err = DB.Delete(3)
+	// if err != nil {
+	// 	log.Error().Msg(err.Error())
+	// 	os.Exit(1)
+	// }
+	// fmt.Println("Delete Berhasil")
+
+	r := gin.Default()
+
+	// initialisasi module customers
+	customerRepo := customerRepository.NewCustomerRepository(db)
+	customerUC := customerUsecase.NewCustomerUsecase(customerRepo)
+	customerHandler.NewCustomerHandler(r, customerUC)
+
+	log.Debug().Msg("Service started on port: " + PORT)
+	r.Run(":" + PORT)
 }
 
 // git clone  https://github.com/MFRHNHAN/bootcamp-api-hmsi.git
